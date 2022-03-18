@@ -93,11 +93,119 @@ func TestAddPictureErrors(t *testing.T) {
 	assert.NoError(t, f.Close())
 }
 
-func TestGetPicture(t *testing.T) {
-	f, err := prepareTestBook1()
+func TestGetPictures(t *testing.T) {
+
+	f, err := OpenFile(filepath.Join("test", "Book2.xlsx"))
 	if !assert.NoError(t, err) {
 		t.FailNow()
 	}
+
+	filename, buff, err := f.GetPictures("16X5-1")
+	for i := range filename {
+		t.Log(filename[i], len(buff[i]))
+	}
+}
+
+func TestGetPicture(t *testing.T) {
+	//f, err := prepareTestBook1()
+	//if !assert.NoError(t, err) {
+	//	t.FailNow()
+	//}
+
+	f, err := OpenFile(filepath.Join("test", "Book2.xlsx"))
+	if !assert.NoError(t, err) {
+		t.FailNow()
+	}
+
+	filename, buff, err := f.GetPictures("16X5-1")
+	t.Log(filename, len(buff))
+
+	//sheet := "16X5-1"
+	//name, ok := f.sheetMap[trimSheetName(sheet)]
+	//if !ok {
+	//	name = strings.ToLower(sheet) + ".xml"
+	//}
+	//rels := "xl/worksheets/_rels/" + strings.TrimPrefix(name, "xl/worksheets/") + ".rels"
+	//sheetRels := f.relsReader(rels)
+	//if sheetRels == nil {
+	//	sheetRels = &xlsxRelationships{}
+	//}
+	//sheetRels.Lock()
+	//defer sheetRels.Unlock()
+	//for _, v := range sheetRels.Relationships {
+	//	t.Log(v.ID, v.Target, v.Type)
+	//}
+
+	//count := 0
+	//f.Pkg.Range(func(k, v interface{}) bool {
+	//	if strings.Contains(k.(string), "xl/media/image") {
+	//		t.Log(k.(string))
+	//		count++
+	//	}
+	//	return true
+	//})
+	//
+	//t.Log(f.countMedia())
+	//
+	//ws, err := f.workSheetReader("16X5-1")
+	//if !assert.NoError(t, err) {
+	//	t.FailNow()
+	//}
+	//
+	//if ws.Drawing == nil {
+	//	t.FailNow()
+	//}
+	//target := f.getSheetRelationshipsTargetByID("16X5-1", ws.Drawing.RID)
+	//drawingXML := strings.Replace(target, "..", "xl", -1)
+	//if _, ok := f.Pkg.Load(drawingXML); !ok {
+	//	t.FailNow()
+	//}
+	//
+	//t.Log(drawingXML, target)
+	//
+	//drawingRelationships := strings.Replace(
+	//	strings.Replace(target, "../drawings", "xl/drawings/_rels", -1), ".xml", ".xml.rels", -1)
+	//
+	//t.Log(drawingRelationships)
+
+	//drawingRelationships = strings.Replace(drawingRelationships, "")
+	//wsDr, _ := f.drawingParser(drawingXML)
+	//
+	//var (
+	//	ok      bool
+	//	anchor  *xdrCellAnchor
+	//	drawRel *xlsxRelationship
+	//)
+	//wsDr.Lock()
+	//defer wsDr.Unlock()
+	//for _, anchor = range wsDr.TwoCellAnchor {
+	//	d, _ := json.Marshal(anchor)
+	//	t.Log(string(d))
+	//	if anchor.From != nil && anchor.Pic != nil {
+	//		//if anchor.From.Col == col && anchor.From.Row == row {
+	//		if drawRel = f.getDrawingRelationships(drawingRelationships,
+	//			anchor.Pic.BlipFill.Blip.Embed); drawRel != nil {
+	//			if _, ok = supportImageTypes[filepath.Ext(drawRel.Target)]; ok {
+	//				t.Log(filepath.Base(drawRel.Target))
+	//				//if buffer, _ := f.Pkg.Load(strings.Replace(drawRel.Target, "..", "xl", -1)); buffer != nil {
+	//				//	buf = buffer.([]byte)
+	//				//}
+	//				return
+	//			}
+	//		}
+	//		//}
+	//	}
+	//}
+	//
+	//if ret, buf = f.getPictureFromWsDr(row, col, drawingRelationships, wsDr); len(buf) > 0 {
+	//	return
+	//}
+	//deWsDr = new(decodeWsDr)
+	//if err = f.xmlNewDecoder(bytes.NewReader(namespaceStrictToTransitional(f.readXML(drawingXML)))).
+	//	Decode(deWsDr); err != nil && err != io.EOF {
+	//	err = fmt.Errorf("xml decode error: %s", err)
+	//	return
+	//}
 
 	file, raw, err := f.GetPicture("Sheet1", "F21")
 	assert.NoError(t, err)

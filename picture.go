@@ -528,6 +528,30 @@ func (f *File) GetPicture(sheet, cell string) (string, []byte, error) {
 	return f.getPicture(row, col, drawingXML, drawingRelationships)
 }
 
+func (f *File) GetPictures(sheet string) (fileName []string, buf [][]byte, err error) {
+	name, ok := f.sheetMap[trimSheetName(sheet)]
+	if !ok {
+		name = strings.ToLower(sheet) + ".xml"
+	}
+	rels := "xl/worksheets/_rels/" + strings.TrimPrefix(name, "xl/worksheets/") + ".rels"
+	sheetRels := f.relsReader(rels)
+	if sheetRels == nil {
+		sheetRels = &xlsxRelationships{}
+	}
+	sheetRels.Lock()
+	defer sheetRels.Unlock()
+	for _, v := range sheetRels.Relationships {
+		if strings.HasSuffix(v.Type, "image") {
+			fileName = append(fileName, strings.TrimPrefix(v.Target, "../media/"))
+			if buffer, _ := f.Pkg.Load(strings.Replace(v.Target, "..", "xl", -1)); buffer != nil {
+				buf = append(buf, buffer.([]byte))
+			}
+		}
+	}
+
+	return
+}
+
 // DeletePicture provides a function to delete charts in spreadsheet by given
 // worksheet and cell name. Note that the image file won't be deleted from the
 // document currently.
