@@ -594,6 +594,30 @@ func (f *File) getPicture(row, col int, drawingXML, drawingRelationships string)
 	return
 }
 
+func (f *File) GetPictures(sheet string) (fileName []string, buf [][]byte, err error) {
+	name, ok := f.sheetMap[trimSheetName(sheet)]
+	if !ok {
+		name = strings.ToLower(sheet) + ".xml"
+	}
+	rels := "xl/worksheets/_rels/" + strings.TrimPrefix(name, "xl/worksheets/") + ".rels"
+	sheetRels := f.relsReader(rels)
+	if sheetRels == nil {
+		sheetRels = &xlsxRelationships{}
+	}
+	sheetRels.Lock()
+	defer sheetRels.Unlock()
+	for _, v := range sheetRels.Relationships {
+		if strings.HasSuffix(v.Type, "image") {
+			fileName = append(fileName, strings.TrimPrefix(v.Target, "../media/"))
+			if buffer, _ := f.Pkg.Load(strings.Replace(v.Target, "..", "xl", -1)); buffer != nil {
+				buf = append(buf, buffer.([]byte))
+			}
+		}
+	}
+
+	return
+}
+
 // getPictureFromWsDr provides a function to get picture base name and raw
 // content in worksheet drawing by given coordinates and drawing
 // relationships.
